@@ -1,27 +1,41 @@
 package com.hrishipallod.randomcouch;
 
-import android.app.Activity;
-
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.Fragment;
 import android.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
+import android.content.Intent;
 import android.os.Bundle;
-import android.view.Gravity;
+import android.support.v4.widget.DrawerLayout;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
 import android.widget.ArrayAdapter;
-import android.widget.TextView;
+import android.widget.ListView;
+
+import com.couchbase.lite.CouchbaseLiteException;
+import com.couchbase.lite.Database;
+import com.couchbase.lite.Document;
+import com.couchbase.lite.Manager;
+import com.couchbase.lite.Query;
+import com.couchbase.lite.QueryEnumerator;
+import com.couchbase.lite.QueryRow;
+import com.couchbase.lite.android.AndroidContext;
+
+import java.io.IOException;
+import java.util.Map;
 
 
 public class MyActivity extends Activity
         implements NavigationDrawerFragment.NavigationDrawerCallbacks {
 
+    private static final String TAG = "YOOOOOOOOOO";
+    Manager manager;
+    Database database;
+    String dbname;
     /**
      * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
      */
@@ -31,12 +45,14 @@ public class MyActivity extends Activity
      * Used to store the last screen title. For use in {@link #restoreActionBar()}.
      */
     private CharSequence mTitle;
-
+    private ArrayAdapter arrayAdapter;
+    ListView listView;
+    ArrayAdapter<String> aR;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_my);
 
+        setContentView(R.layout.activity_my);
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.navigation_drawer);
         mTitle = getTitle();
@@ -45,7 +61,72 @@ public class MyActivity extends Activity
         mNavigationDrawerFragment.setUp(
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
+        try {
+            manager = new Manager(new AndroidContext(this), Manager.DEFAULT_OPTIONS);
+            Log.d(TAG, "Manager created");
+        } catch (IOException e) {
+            Log.e(TAG, "Cannot create manager object");
+            return;
+        }
+        // create a name for the database and make sure the name is legal
+        dbname = "notes";
+        if (!Manager.isValidDatabaseName(dbname)) {
+            Log.e(TAG, "Bad database name");
+            return;
+        }
+// create a new database
+
+        try {
+            database = manager.getDatabase(dbname);
+            Log.d (TAG, "Database created");
+        } catch (CouchbaseLiteException e) {
+            Log.e(TAG, "Cannot get database");
+            return;
+        }
+        initializeList();
     }
+
+    private void initializeList() {
+
+        String[] str = new String[50]; //{ "item1", "item2", "item3", "item4", "item5","item6" };
+        //String [] str = new String[] {"sadf", "sdfasdf", "asdfasdf"};
+
+        int i=0;
+
+        QueryRow qR;
+        try {
+            Query q = (Query) database.createAllDocumentsQuery();
+
+            Document document;
+            Map<String, Object> dp;
+            //String = q.toLiveQuery();
+            QueryEnumerator qE= null;
+            try {
+                qE = q.run();
+            } catch (CouchbaseLiteException e) {
+                e.printStackTrace();
+            }
+            while (qE.hasNext()) {
+
+                qR = qE.next();
+                document = qR.getDocument();
+                Log.d(TAG, (String) document.getProperty("_id").toString());
+                str[i] = (String) document.getProperty("message").toString();
+                i++;
+            }
+        }
+        catch(NullPointerException e)
+        {
+            Log.d(TAG, "SADNESS");
+        }
+        //Document document = row.getDocument();
+
+        listView = (ListView)findViewById(R.id.list);
+        aR = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, str);
+        listView.setAdapter(aR);
+
+    }
+
 
     @Override
     public void onNavigationDrawerItemSelected(int position) {
@@ -63,6 +144,8 @@ public class MyActivity extends Activity
                 break;
             case 2:
                 mTitle = getString(R.string.title_section2);
+                Intent intent = new Intent(this, AddNote.class);
+                startActivity(intent);
                 break;
             case 3:
                 mTitle = getString(R.string.title_section3);
