@@ -4,31 +4,21 @@ import android.app.Activity;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.EditText;
-
-import com.couchbase.lite.Database;
-import com.couchbase.lite.Manager;
 
 
-public class AddNote extends Activity {
+public class About extends Activity {
 
-    private static final String TAG = "YOOOOO";
-    Manager manager;
-    Database database;
-    public static  final String dbname = "NOTES";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_add_note);
-        // create a manager
+        setContentView(R.layout.activity_about);
     }
 
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.add_note, menu);
+        getMenuInflater().inflate(R.menu.about, menu);
         return true;
     }
 
@@ -42,13 +32,5 @@ public class AddNote extends Activity {
             return true;
         }
         return super.onOptionsItemSelected(item);
-    }
-    public void addNewNote(View view)
-    {
-        EditText text = (EditText)findViewById(R.id.editText);
-        DbHandler db = new DbHandler(this);
-        db.addNewNote(text.getText().toString(), "important");
-        text.setText("");
-
     }
 }

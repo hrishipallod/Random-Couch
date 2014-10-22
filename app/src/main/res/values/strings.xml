@@ -14,5 +14,8 @@
     <string name="add_note">Add Note</string>
     <string name="type">type</string>
     <string name="type_note">Start Typing</string>
+    <string name="title_activity_about">About</string>
+
+    <string name="NOTES_">NOTES-COUCHBASE-DATA-DRIVEN</string>
 
 </resources>
