@@ -29,6 +29,7 @@ public class DbHandler {
     private Manager manager;
     private Database database;
     private String currentTimestamp;
+    private int count;
 
     public DbHandler(Context context)
     {
@@ -57,18 +58,16 @@ public class DbHandler {
 
     public ArrayList<String> getAllNotes()
     {
-//        String[] str = new String[50]; //{ "item1", "item2", "item3", "item4", "item5","item6" };
-        //String [] str = new String[] {"sadf", "sdfasdf", "asdfasdf"};
+        count = 0;
         ArrayList<String> aR= new ArrayList<String>();
-
         int i=0;
         QueryRow qR;
         try {
             Query q = (Query) database.createAllDocumentsQuery();
 
             Document document;
-            Map<String, Object> dp;
-            //String = q.toLiveQuery();
+            //Map<String, Object> dp;
+            //String = q.toLiveQuery()
             QueryEnumerator qE= null;
             try {
                 qE = q.run();
@@ -81,7 +80,7 @@ public class DbHandler {
                 document = qR.getDocument();
                 Log.d(TAG, (String) document.getProperty("_id").toString());
                 aR.add((String) document.getProperty("message").toString());
-                //i++;
+                count++;
             }
         }
         catch(NullPointerException e)
@@ -113,7 +112,10 @@ public class DbHandler {
         */
 
     }
-
+    public String getCount()
+    {
+        return String.valueOf(count);
+    }
     public String getCurrentTimestamp() {
         SimpleDateFormat dateFormatter = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'");
         Calendar calendar = GregorianCalendar.getInstance();

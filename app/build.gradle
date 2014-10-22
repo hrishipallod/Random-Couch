@@ -1,5 +1,13 @@
 apply plugin: 'com.android.application'
 
+repositories {
+    mavenCentral()
+}
+dependencies {
+    compile "com.mixpanel.android:mixpanel-android:4.3.1@aar"
+}
+
+
 android {
     // workaround for "duplicate files during packaging of APK" issue
         // see https://groups.google.com/d/msg/adt-dev/bl5Rc4Szpzg/wC8cylTWuIEJ

@@ -15,6 +15,11 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 
 
@@ -32,6 +37,8 @@ public class MyActivity extends Activity
      */
     private CharSequence mTitle;
     ListView listView;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,16 +53,29 @@ public class MyActivity extends Activity
                 R.id.navigation_drawer,
                 (DrawerLayout) findViewById(R.id.drawer_layout));
 
-        initializeList();
+        try {
+            initializeList();
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    private void initializeList() {
+    private void initializeList() throws JSONException {
 
         DbHandler db = new DbHandler(this);
         ArrayList<String> a = db.getAllNotes();
         listView = (ListView)findViewById(R.id.list);
         ArrayAdapter<String> aR = new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, a);
         listView.setAdapter(aR);
+
+        MixpanelAPI mixpanel = MixpanelAPI.getInstance(this, "7aed6c3effbfa78881596ab4da29a67b");
+
+        JSONObject props = new JSONObject();
+        props.put("No. of notes", db.getCount());
+        mixpanel.track("list initialized", props);
+        mixpanel.flush();
+
 
     }
 
@@ -69,7 +89,7 @@ public class MyActivity extends Activity
                 .commit();
     }
 
-    public void onSectionAttached(int number) {
+    public void onSectionAttached(int number) throws JSONException {
         switch (number) {
             case 1:
                 mTitle = getString(R.string.title_section1);
@@ -156,8 +176,12 @@ public class MyActivity extends Activity
         @Override
         public void onAttach(Activity activity) {
             super.onAttach(activity);
-            ((MyActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+            try {
+                ((MyActivity) activity).onSectionAttached(
+                        getArguments().getInt(ARG_SECTION_NUMBER));
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
         }
     }
 

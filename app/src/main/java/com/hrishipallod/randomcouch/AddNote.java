@@ -7,16 +7,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 
-import com.couchbase.lite.Database;
-import com.couchbase.lite.Manager;
+import com.mixpanel.android.mpmetrics.MixpanelAPI;
+
+import org.json.JSONException;
+import org.json.JSONObject;
 
 
 public class AddNote extends Activity {
 
     private static final String TAG = "YOOOOO";
-    Manager manager;
-    Database database;
-    public static  final String dbname = "NOTES";
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -48,6 +47,15 @@ public class AddNote extends Activity {
         EditText text = (EditText)findViewById(R.id.editText);
         DbHandler db = new DbHandler(this);
         db.addNewNote(text.getText().toString(), "important");
+        MixpanelAPI mixpanel = MixpanelAPI.getInstance(this, "7aed6c3effbfa78881596ab4da29a67b");
+        JSONObject prop = new JSONObject();
+        try {
+            prop.put("Note length", String.valueOf(text.getText().toString().length()));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        mixpanel.track("New Note added", prop);
+        mixpanel.flush();
         text.setText("");
 
     }
